@@ -14,7 +14,7 @@ class CreateStockInfo:
     def __init__(self, stockID):
         self.stockID = stockID
 
-    def connection(self):
+    def _connection(self):
         """
         建立和数据库的连接
         """
@@ -25,12 +25,12 @@ class CreateStockInfo:
     def createTable(self):
         """
         为stockID创建表
-        ts_code trade_date open high close pre_close chg pct_chg vol amount
+        ts_code trade_date open high low close pre_close chg pct_chg vol amount
 
         Returns:
             建表成功返回Ture，失败返回False
         """
-        cursor, conn = self.connection()
+        cursor, conn = self._connection()
         existence = cursor.execute("show tables like '%s';" % self.stockID)
         # 检查该表是否已经存在
         if existence == 1:
@@ -40,9 +40,10 @@ class CreateStockInfo:
             sql = """CREATE TABLE %s(
                     ts_code char(30),
                     trade_date char(30),
-                    open float,
-                    high float,
-                    close float,
+                    open_price float,
+                    high_price float,
+                    low_price float,
+                    close_price float,
                     pre_close float,
                     chg float,
                     pct_chg float,

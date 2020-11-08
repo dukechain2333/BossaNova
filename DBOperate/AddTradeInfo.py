@@ -26,7 +26,7 @@ class AddTradeInfo:
         self.stockMoney = stockMoney
         self.money = money
 
-    def connection(self):
+    def _connection(self):
         """
         建立和数据库的连接
         """
@@ -38,7 +38,7 @@ class AddTradeInfo:
         """
         在trade_log数据库中插入信息
         """
-        cursor, conn = self.connection()
+        cursor, conn = self._connection()
         sql = 'INSERT INTO trade_info.trade_log(time, stockID, pricePerAmount, stockAmount, stockMoney, money) VALUES ' \
               '(%s,%s,%s,%s,%s,%s) '
         value = (self.time, self.stockID, self.pricePerAmount, self.stockAmount, self.stockMoney, self.money)
