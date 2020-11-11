@@ -9,16 +9,21 @@ class CreateStockInfo:
     """
     为新收集的数据在stock_info数据库中创建表
     表命名规则：stockID
+
+     Args:
+        stockID:传入股票ID
+        database:目标位于的数据库（daily,weekly,monthly）
     """
 
-    def __init__(self, stockID):
+    def __init__(self, stockID, database):
         self.stockID = stockID
+        self.database = database
 
     def _connection(self):
         """
         建立和数据库的连接
         """
-        conn = pymysql.connect("localhost", "root", "qian258046", "stock_info", charset='utf8')
+        conn = pymysql.connect("localhost", "root", "qian258046", self.database, charset='utf8')
         cursor = conn.cursor()
         return cursor, conn
 
@@ -37,7 +42,7 @@ class CreateStockInfo:
             print('该表已存在，不予重复创建')
             return False
         else:
-            sql = """CREATE TABLE %s(
+            sql = """CREATE TABLE `{}`(
                     ts_code char(30),
                     trade_date char(30),
                     open_price float,
@@ -49,7 +54,7 @@ class CreateStockInfo:
                     pct_chg float,
                     vol float,
                     amount float
-                    )""" % self.stockID
+                    )""".format(self.stockID)
             cursor.execute(sql)
             print(self.stockID + "信息表已创建！")
             conn.commit()

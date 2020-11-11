@@ -5,6 +5,7 @@
 from threading import Thread
 from DBOperate.CreateStockInfo import CreateStockInfo
 from DBOperate.AddStockInfo import AddStockInfo
+import tushare as ts
 
 
 class MonthlyData(Thread):
@@ -17,6 +18,7 @@ class MonthlyData(Thread):
         startDate:数据起始日期
         endDate:数据结束日期
     """
+
     def __init__(self, pro, stockID, startDate, endDate):
         super().__init__()
         self.pro = pro
@@ -27,18 +29,30 @@ class MonthlyData(Thread):
     def run(self):
         data = self.pro.daily(ts_code=self.stockID, start_date=self.startDate, end_date=self.endDate)
 
-        open_price = data['open']
-        high_price = data['high']
-        low_price = data['low']
-        close_price = data['close']
-        pre_close = data['pre_close']
-        chg = data['change']
-        pct_chg = data['pct_change']
-        vol = data['vol']
-        amount = data['amount']
+        try:
+            open_price = data['open'][0]
+            high_price = data['high'][0]
+            low_price = data['low'][0]
+            close_price = data['close'][0]
+            pre_close = data['pre_close'][0]
+            chg = data['change'][0]
+            pct_chg = data['pct_chg'][0]
+            vol = data['vol'][0]
+            amount = data['amount'][0]
 
-        createInfo = CreateStockInfo(self.stockID)
-        createInfo.createTable()
-        addInfo = AddStockInfo(self.stockID, self.endDate, open_price, high_price, low_price, close_price, pre_close,
-                               chg, pct_chg, vol, amount)
-        addInfo.addInfoMonthly()
+        except IndexError:
+            print(self.endDate, '数据不存在，请修改时间！')
+
+        else:
+            createInfo = CreateStockInfo(self.stockID, 'stock_info_monthly')
+            createInfo.createTable()
+            addInfo = AddStockInfo(self.stockID, self.endDate, open_price, high_price, low_price, close_price,
+                                   pre_close,
+                                   chg, pct_chg, vol, amount)
+            addInfo.addInfoMonthly()
+
+
+ts.set_token('6e32db130ef1ea433f2bf65245ae9026e355cb91d31e47ee50b76598')
+pro = ts.pro_api()
+test = MonthlyData(pro, '603385.SH', '20201031', '20201129')
+test.start()
