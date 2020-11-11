@@ -52,7 +52,7 @@ class WeeklyData(Thread):
             addInfo.addInfoWeekly()
 
 
-ts.set_token('6e32db130ef1ea433f2bf65245ae9026e355cb91d31e47ee50b76598')
-pro = ts.pro_api()
-test = WeeklyData(pro, '603385.SH', '20200828', '20200904')
-test.start()
+# ts.set_token('6e32db130ef1ea433f2bf65245ae9026e355cb91d31e47ee50b76598')
+# pro = ts.pro_api()
+# test = WeeklyData(pro, '603385.SH', '20200828', '20200904')
+# test.start()

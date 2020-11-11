@@ -52,7 +52,7 @@ class MonthlyData(Thread):
             addInfo.addInfoMonthly()
 
 
-ts.set_token('6e32db130ef1ea433f2bf65245ae9026e355cb91d31e47ee50b76598')
-pro = ts.pro_api()
-test = MonthlyData(pro, '603385.SH', '20201031', '20201129')
-test.start()
+# ts.set_token('6e32db130ef1ea433f2bf65245ae9026e355cb91d31e47ee50b76598')
+# pro = ts.pro_api()
+# test = MonthlyData(pro, '603385.SH', '20201031', '20201129')
+# test.start()
