@@ -3,12 +3,13 @@
 #  @createTime 2020/11/08 19:55:08
 
 from threading import Thread
+import threading
 from DBOperate.CreateStockInfo import CreateStockInfo
 from DBOperate.AddStockInfo import AddStockInfo
 import tushare as ts
 
 
-class WeeklyData(Thread):
+class WeeklyData(threading.Thread):
     """
     获取Weekly数据并写入数据库，注意若传入日期为20201001-20201002仅录入20201002数据
 
