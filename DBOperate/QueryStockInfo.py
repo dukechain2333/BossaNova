@@ -37,11 +37,17 @@ class QueryStockInfo:
         cursor, conn = self._connection()
         if self.database == 'stock_info_daily':
             sql = "select trade_date,close_price,high_price,low_price,open_price,pre_close,volume,outstanding_share,turnover from `{}`" \
-                  "where trade_date='{}';".format(self.stockID, trade_date)
+                  "where trade_date like '{}%';".format(self.stockID, trade_date)
         elif self.database == 'stock_info_minutes':
             sql = "select trade_date,open_price,high_price,low_price,close_price,volume from `{}`" \
-                  "where trade_date='{}';".format(self.stockID, trade_date)
+                  "where trade_date like '{}%';".format(self.stockID, trade_date)
         cursor.execute(sql)
         data = cursor.fetchall()
         conn.close()
         return data
+
+
+if __name__ == '__main__':
+    test = QueryStockInfo('sh601808', 'stock_info_minutes')
+    data=test.query('2020-07-15')
+    print(data)
