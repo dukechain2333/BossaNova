@@ -12,7 +12,7 @@ class QueryStockInfo:
 
      Args:
         stockID:股票ID
-        database:查询目标位于的数据库（daily,weekly,monthly）
+        database:查询目标位于的数据库（daily,weekly,monthly,minutes）
         trade_date:特定日期（如20201111形式）
     """
 
@@ -33,14 +33,15 @@ class QueryStockInfo:
         Returns:
              data:返回元组形式的数据
         """
+        sql = None
         cursor, conn = self._connection()
-        sql = "select open_price,high_price,low_price,close_price,pre_close,chg,pct_chg,vol,amount from `{}` " \
-              "where trade_date='{}';".format(self.stockID, trade_date)
+        if self.database == 'stock_info_daily':
+            sql = "select trade_date,close_price,high_price,low_price,open_price,pre_close,volume,outstanding_share,turnover from `{}`" \
+                  "where trade_date='{}';".format(self.stockID, trade_date)
+        elif self.database == 'stock_info_minutes':
+            sql = "select trade_date,open_price,high_price,low_price,close_price,volume from `{}`" \
+                  "where trade_date='{}';".format(self.stockID, trade_date)
         cursor.execute(sql)
         data = cursor.fetchall()
         conn.close()
         return data
-
-# test = QueryStockInfo('603385.SH', 'stock_info_daily')
-# data = test.query('20200102')
-# print(data)

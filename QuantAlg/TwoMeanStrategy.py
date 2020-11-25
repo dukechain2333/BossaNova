@@ -2,11 +2,10 @@
 #  @File:TwoMeanStrategy.py
 #  @createTime 2020/11/10 21:58:10
 
-import multiprocessing
 from DBOperate.QueryStockInfo import QueryStockInfo
 
 
-class TwoMeanStrategy(multiprocessing):
+class TwoMeanStrategy:
     """
     双均线策略
     短周期默认为10，长周期默认为20，当短期均线由上向下穿越长期均线时卖出，当短期均线由下向上穿越长期均线时买入
@@ -22,7 +21,6 @@ class TwoMeanStrategy(multiprocessing):
             shortTerm:短周期(默认10)
             longTerm:长周期(默认20)
         """
-        super().__init__()
         self.stockID = stockID
         self.barrier = barrier
         self.dateList = dateList
@@ -40,12 +38,12 @@ class TwoMeanStrategy(multiprocessing):
         Returns:
             data:返回指定交易日期的数据
         """
-        qry = QueryStockInfo(self.stockID, 'stock_info_daily')
+        qry = QueryStockInfo(self.stockID, 'stock_info_minutes')
         data = qry.query(tradeDate)
 
         return data
 
-    def main(self):
+    def mainalg(self):
 
         sumShort = 0
         sumLong = 0
@@ -62,8 +60,8 @@ class TwoMeanStrategy(multiprocessing):
 
             # 获取数据并计算短期与长期均值
             data = self._getData(date)
-            sumShort += data[0][0]
-            sumLong += data[0][0]
+            sumShort += data[0][1]
+            sumLong += data[0][1]
             shortMean = sumShort / (time % self.shortTerm)
             longMean = sumLong / (time % self.longTerm)
             shortMeanList.append(shortMean)

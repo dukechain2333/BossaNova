@@ -15,9 +15,10 @@ class CreateStockInfo:
         database:目标位于的数据库（daily,weekly,monthly）
     """
 
-    def __init__(self, stockID, database):
+    def __init__(self, stockID, database, ifminute=False):
         self.stockID = stockID
         self.database = database
+        self.ifminute = ifminute
 
     def _connection(self):
         """
@@ -42,19 +43,27 @@ class CreateStockInfo:
             print('该表已存在，不予重复创建')
             return False
         else:
-            sql = """CREATE TABLE `{}`(
-                    ts_code char(30),
-                    trade_date char(30),
-                    open_price float,
-                    high_price float,
-                    low_price float,
-                    close_price float,
-                    pre_close float,
-                    chg float,
-                    pct_chg float,
-                    vol float,
-                    amount float
-                    )""".format(self.stockID)
+            if not self.ifminute:
+                sql = """CREATE TABLE `{}`(
+                                    trade_date char(30),
+                                    close_price float,
+                                    high_price float,
+                                    low_price float,
+                                    open_price float,
+                                    pre_close float,
+                                    volume float,
+                                    outstanding_share float,
+                                    turnover float
+                                    )""".format(self.stockID)
+            else:
+                sql = """CREATE TABLE `{}`(
+                                    trade_date char(30),
+                                    open_price float,
+                                    high_price float,
+                                    low_price float,
+                                    close_price float,
+                                    volume float
+                                    )""".format(self.stockID)
             cursor.execute(sql)
             print(self.stockID + "信息表已创建！")
             conn.commit()

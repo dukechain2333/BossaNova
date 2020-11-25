@@ -12,19 +12,18 @@ class AddStockInfo:
     Args:
         stockID:股票代码
         trade_date:信息日期
-        open_price:开盘价
+        close_price:收盘价
         high_price:最高价
         low_price:最低价
-        close_price:收盘价
-        pre_close:昨日收盘价
-        chg:涨跌额
-        pct_chg:涨跌幅
-        vol:成交量（手）
-        amount:成交额（千元）
+        open_price:开盘价
+        volume:成交量
+        outstanding_share:流动股本
+        turnover:换手率
     """
 
-    def __init__(self, stockID, trade_date, open_price, high_price, low_price, close_price, pre_close, chg, pct_chg,
-                 vol, amount):
+    def __init__(self, stockID=None, trade_date=0, close_price=0, high_price=0, low_price=0, open_price=0, volume=0,
+                 outstanding_share=0,
+                 turnover=0):
         # 初始化
         self.stockID = stockID
         self.trade_date = trade_date
@@ -32,11 +31,9 @@ class AddStockInfo:
         self.high_price = high_price
         self.low_price = low_price
         self.close_price = close_price
-        self.pre_close = pre_close
-        self.chg = chg
-        self.pct_chg = pct_chg
-        self.vol = vol
-        self.amount = amount
+        self.volume = volume
+        self.outstanding_share = outstanding_share
+        self.turnover = turnover
 
     def _connection(self, database):
         """
@@ -51,47 +48,29 @@ class AddStockInfo:
         添加股票Daily信息
         """
         cursor, conn = self._connection('stock_info_daily')
-        sql = 'INSERT INTO `{}`(ts_code,trade_date,open_price,high_price,low_price,close_price,pre_close,chg,' \
-              'pct_chg,vol,amount)' \
-              'VALUES ("{}",{},{},{},{},{},{},{},{},{},{}) '.format(self.stockID, self.stockID, self.trade_date,
-                                                                    self.open_price, self.high_price, self.low_price,
-                                                                    self.close_price, self.pre_close, self.chg,
-                                                                    self.pct_chg, self.vol, self.amount)
+        sql = 'INSERT INTO `{}`(trade_date,close_price,high_price,low_price,open_price,volume,outstanding_share,' \
+              'turnover)' \
+              'VALUES ("{}",{},{},{},{},{},{},{}) '.format(self.stockID, self.trade_date,
+                                                           self.close_price, self.high_price, self.low_price,
+                                                           self.open_price, self.volume, self.outstanding_share,
+                                                           self.turnover)
         cursor.execute(sql)
         conn.commit()
         print(self.stockID + ' daily信息已更新')
         conn.close()
 
-    def addInfoWeekly(self):
+    def addInfoMinute(self):
         """
-        添加股票Weekly信息
+        添加股票Minutes信息
         """
-        cursor, conn = self._connection('stock_info_weekly')
-        sql = 'INSERT INTO `{}`(ts_code,trade_date,open_price,high_price,low_price,close_price,pre_close,chg,' \
-              'pct_chg,vol,amount)' \
-              'VALUES ("{}",{},{},{},{},{},{},{},{},{},{}) '.format(self.stockID, self.stockID, self.trade_date,
-                                                                    self.open_price, self.high_price, self.low_price,
-                                                                    self.close_price, self.pre_close, self.chg,
-                                                                    self.pct_chg, self.vol, self.amount)
+        cursor, conn = self._connection('stock_info_minutes')
+        sql = 'INSERT INTO `{}`(trade_date,open_price,high_price,low_price,close_price,volume)' \
+              'VALUES ("{}",{},{},{},{},{}) '.format(self.stockID, self.trade_date,
+                                                     self.open_price, self.high_price, self.low_price,
+                                                     self.close_price, self.volume)
         cursor.execute(sql)
         conn.commit()
-        print(self.stockID + ' weekly信息已更新')
-        conn.close()
-
-    def addInfoMonthly(self):
-        """
-        添加股票Monthly信息
-        """
-        cursor, conn = self._connection('stock_info_monthly')
-        sql = 'INSERT INTO `{}`(ts_code,trade_date,open_price,high_price,low_price,close_price,pre_close,chg,' \
-              'pct_chg,vol,amount)' \
-              'VALUES ("{}",{},{},{},{},{},{},{},{},{},{}) '.format(self.stockID, self.stockID, self.trade_date,
-                                                                    self.open_price, self.high_price, self.low_price,
-                                                                    self.close_price, self.pre_close, self.chg,
-                                                                    self.pct_chg, self.vol, self.amount)
-        cursor.execute(sql)
-        conn.commit()
-        print(self.stockID + ' monthly信息已更新')
+        print(self.stockID + ' minutes信息已更新')
         conn.close()
 
 # test = AddStockInfo('603385.SH', '20200101', 100, 200, 50, 150, 10, 10, 20, 30, 40)
