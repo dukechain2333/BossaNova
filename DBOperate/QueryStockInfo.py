@@ -13,7 +13,6 @@ class QueryStockInfo:
      Args:
         stockID:股票ID
         database:查询目标位于的数据库（daily,weekly,monthly,minutes）
-        trade_date:特定日期（如20201111形式）
     """
 
     def __init__(self, stockID, database):
@@ -30,6 +29,8 @@ class QueryStockInfo:
 
     def query(self, trade_date):
         """
+        Args:
+            trade_date:特定日期（如2020-07-15形式）
         Returns:
              data:返回元组形式的数据
         """
@@ -47,7 +48,7 @@ class QueryStockInfo:
         return data
 
 
-if __name__ == '__main__':
-    test = QueryStockInfo('sh601808', 'stock_info_minutes')
-    data=test.query('2020-07-15')
-    print(data)
+# if __name__ == '__main__':
+#     test = QueryStockInfo('sh601808', 'stock_info_minutes')
+#     data=test.query('2020-07-15')
+#     print(data)

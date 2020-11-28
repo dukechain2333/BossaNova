@@ -3,6 +3,7 @@
 #  @createTime 2020/11/06 23:44:06
 
 import pymysql
+from DBOperate.QueryTradeInfo import QueryTradeInfo
 
 
 class AddTradeInfo:
@@ -34,7 +35,7 @@ class AddTradeInfo:
         cursor = conn.cursor()
         return cursor, conn
 
-    def addInfo(self):
+    def addLogInfo(self):
         """
         在trade_log数据库中插入信息
         """
@@ -44,9 +45,39 @@ class AddTradeInfo:
         value = (self.time, self.stockID, self.pricePerAmount, self.stockAmount, self.stockMoney, self.money)
         cursor.execute(sql, value)
         conn.commit()
-        print('交易信息已更新')
+        print(self.stockID + ' 交易信息已更新')
         conn.close()
 
+    def addRepoInfo(self):
+        """
+        添加个体交易信息
+        """
+        cursor, conn = self._connection()
+        existence = cursor.execute("show tables like '%s';" % self.stockID)
+
+        if existence == 1:
+            preTradeInfo = QueryTradeInfo(self.stockID)
+            preTradeData = preTradeInfo.queryTradeInfo()
+            repo_amount = preTradeData[0][3] + self.stockAmount
+            sql = 'INSERT INTO `{}`(trade_time,trade_price,trade_amount,repo_amount)' \
+                  'VALUES ("{}",{},{},{}) '.format(self.stockID, self.time, self.pricePerAmount, self.stockAmount,
+                                                   repo_amount)
+            cursor.execute(sql)
+            conn.commit()
+            print(self.stockID + ' 交易信息已更新')
+            conn.close()
+        else:
+            sql = """CREATE TABLE `{}`(
+                                    trade_time char(30),
+                                    trade_price float,
+                                    trade_amount float,
+                                    repo_amount float
+                                    )""".format(self.stockID)
+            cursor.execute(sql)
+            print(self.stockID + "信息表已创建！")
+            conn.commit()
+            conn.close()
+
 # 测试信息
-#test = AddTradeInfo('2020-11-06 23:49:45', '123', 34, 100, 3400, 10000)
-#test.addInfo()
+# test = AddTradeInfo('2020-11-06 23:49:45', '123', 34, 100, 3400, 10000)
+# test.addInfo()
