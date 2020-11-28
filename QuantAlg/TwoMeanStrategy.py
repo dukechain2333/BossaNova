@@ -12,13 +12,13 @@ class TwoMeanStrategy:
 
     """
 
-    def __init__(self, stockID, barrier, dateList, tradeFlag, shortTerm=10, longTerm=20):
+    def __init__(self, stockID, barrier, dateList, tradeFlags, shortTerm=10, longTerm=20):
         """
         Args:
             stockID:传入股票代码
             barrier:进程同步器
             dateList:传入日期列表
-            tradeFlag:交易信号
+            tradeFlags:交易信号数组(0)
             shortTerm:短周期(默认10)
             longTerm:长周期(默认20)
         """
@@ -27,7 +27,7 @@ class TwoMeanStrategy:
         self.dateList = dateList
         self.shortTerm = shortTerm
         self.longTerm = longTerm
-        self.tradeFlag = tradeFlag
+        self.tradeFlags = tradeFlags
 
     def _getData(self, tradeDate):
         """
@@ -74,15 +74,15 @@ class TwoMeanStrategy:
             if len(shortMeanList) >= 2 and len(longMeanList) >= 2:
                 # 均线下穿，卖出
                 if longMeanList[-2] < shortMeanList[-2] and longMean >= shortMean:
-                    self.tradeFlag = -1
+                    self.tradeFlags[0] = -1
                     self.barrier.wait()
 
                 # 均线上穿，买入（默认moneyHold的10%）
                 elif longMeanList[-2] > shortMeanList[-2] and longMean <= shortMean:
-                    self.tradeFlag = 1
+                    self.tradeFlags[0] = 1
                     self.barrier.wait()
 
                 # 持有，不作为
                 else:
-                    self.tradeFlag = 0
+                    self.tradeFlags[0] = 0
                     self.barrier.wait()
