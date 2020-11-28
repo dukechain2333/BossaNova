@@ -90,7 +90,7 @@ class DualThrust:
         rangeN = max(highMax - closeMin, closeMax - lowMin) * self.K
         return rangeN
 
-    def mainalg(self):
+    def main(self):
         """
         主方法
         """

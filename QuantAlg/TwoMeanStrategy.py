@@ -44,7 +44,7 @@ class TwoMeanStrategy:
 
         return data
 
-    def mainalg(self):
+    def main(self):
         """
         主方法
         """

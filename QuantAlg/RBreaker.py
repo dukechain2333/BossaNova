@@ -83,7 +83,7 @@ class RBreaker:
 
         return tradeData
 
-    def mainalg(self):
+    def main(self):
         """
         主方法
         """
