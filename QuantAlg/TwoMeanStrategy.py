@@ -12,20 +12,16 @@ class TwoMeanStrategy:
 
     """
 
-    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags, shortTerm=10, longTerm=20):
+    def __init__(self, stockID, dateList, tradeFlags, shortTerm=10, longTerm=20):
         """
         Args:
             stockID:传入股票代码
-            barrierMinute:进程同步器(分钟)
-            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(0)
             shortTerm:短周期(默认10)
             longTerm:长周期(默认20)
         """
         self.stockID = stockID
-        self.barrierMinute = barrierMinute
-        self.barrierDay = barrierDay
         self.dateList = dateList
         self.shortTerm = shortTerm
         self.longTerm = longTerm
@@ -46,9 +42,13 @@ class TwoMeanStrategy:
 
         return data
 
-    def main(self):
+    def main(self, barrierMinute, barrierDay):
         """
         主方法
+
+        Args:
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
         """
         sumShort = 0
         sumLong = 0
@@ -77,18 +77,18 @@ class TwoMeanStrategy:
                 # 均线下穿，卖出
                 if longMeanList[-2] < shortMeanList[-2] and longMean >= shortMean:
                     self.tradeFlags[0] = -1
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
                 # 均线上穿，买入（默认moneyHold的10%）
                 elif longMeanList[-2] > shortMeanList[-2] and longMean <= shortMean:
                     self.tradeFlags[0] = 1
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
                 # 持有，不作为
                 else:
                     self.tradeFlags[0] = 0
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
         # 每日清算
         self.tradeFlags[0] = 0
-        self.barrierDay.wait()
+        barrierDay.wait()

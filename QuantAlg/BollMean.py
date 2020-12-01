@@ -17,18 +17,14 @@ class BollMean:
     下轨线 = 中轨线 - n倍标准差
     """
 
-    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags):
+    def __init__(self, stockID, dateList, tradeFlags):
         """
         Args:
             stockID:股票ID
-            barrierMinute:进程同步器(分钟)
-            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(4)
         """
         self.stockID = stockID
-        self.barrierMinute = barrierMinute
-        self.barrierDay = barrierDay
         self.dateList = dateList
         self.tradeFlags = tradeFlags
         # 均值和标准差计算长度
@@ -66,9 +62,13 @@ class BollMean:
 
         return dailyData
 
-    def main(self):
+    def main(self,barrierMinute, barrierDay):
         """
         主方法
+
+        Args:
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
         """
         dataList = []
         for day in range(len(self.dateList)):
@@ -92,18 +92,18 @@ class BollMean:
                 # 分钟数据大于上轨，卖出
                 if minute[1] >= bollCeil:
                     self.tradeFlags[4] = -1
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
                 # 分钟数据小于下轨，买入
                 elif minute[1] <= bollFloor:
                     self.tradeFlags[4] = 1
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
                 # 不作为
                 else:
                     self.tradeFlags[4] = 0
-                    self.barrierMinute.wait()
+                    barrierMinute.wait()
 
         # 日清算
         self.tradeFlags[4] = 0
-        self.barrierDay.wait()
+        barrierDay.wait()
