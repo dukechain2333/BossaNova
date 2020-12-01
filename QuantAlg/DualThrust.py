@@ -3,23 +3,29 @@
 #  @createTime 2020/11/17 20:24:17
 
 from DBOperate.QueryStockInfo import QueryStockInfo
+import multiprocessing
 
 
-class DualThrust:
+class DualThrust(multiprocessing.Process):
     """
     Dual Thrust是一个趋势跟踪系统
     计算前N天的最高价－收盘价和收盘价－最低价。然后取这2N个价差的最大值，乘以k值。把结果称为触发值。
     在今天的开盘，记录开盘价，然后在价格超过上轨（开盘＋触发值）时马上买入，或者价格低于下轨（开盘－触发值）时马上卖空。
     """
 
-    def __init__(self, stockID, dateList, tradeFlags):
+    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags):
         """
         Args:
             stockID:传入股票代码
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(1)
         """
+        super().__init__()
         self.stockID = stockID
+        self.barrierMinute = barrierMinute
+        self.barrierDay = barrierDay
         self.dateList = dateList
         self.N = 5
         self.K = 0.2
@@ -88,13 +94,9 @@ class DualThrust:
         rangeN = max(highMax - closeMin, closeMax - lowMin) * self.K
         return rangeN
 
-    def main(self, barrierMinute, barrierDay, ):
+    def run(self):
         """
         主方法
-
-        Args:
-            barrierMinute:进程同步器(分钟)
-            barrierDay:进程同步器(日)
         """
         for i in range(self.N - 1, len(self.dateList)):
             # 计算当天上轨与下轨
@@ -112,16 +114,16 @@ class DualThrust:
                 # 分钟数据大于上轨，买入
                 if minuteData[minute][1] > dayCeil:
                     self.tradeFlags[1] = 1
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
                 # 分钟数据小于下轨，卖出
                 elif minuteData[minute][1] < dayFloor:
                     self.tradeFlags[1] = -1
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
                 # 分钟数据位于上下轨之间，不作为
                 else:
                     self.tradeFlags[1] = 0
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
 
         # 日清算
         self.tradeFlags[1] = 0
-        barrierDay.wait()
+        self.barrierDay.wait()

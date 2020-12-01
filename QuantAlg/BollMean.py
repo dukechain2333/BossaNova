@@ -5,9 +5,10 @@
 from DBOperate.QueryStockInfo import QueryStockInfo
 from DBOperate.QueryTradeInfo import QueryTradeInfo
 import numpy as np
+import multiprocessing
 
 
-class BollMean:
+class BollMean(multiprocessing.Process):
     """
     布林带是利用统计学中的均值和标准差联合计算得出的，分为均线，上轨线和下轨线。
     布林线均值回归策略认为，标的价格在上轨线和下轨线围成的范围内浮动，即使短期内突破上下轨，但长期内仍然会回归到布林带之中。
@@ -17,14 +18,19 @@ class BollMean:
     下轨线 = 中轨线 - n倍标准差
     """
 
-    def __init__(self, stockID, dateList, tradeFlags):
+    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags):
         """
         Args:
             stockID:股票ID
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(4)
         """
+        super().__init__()
         self.stockID = stockID
+        self.barrierMinute = barrierMinute
+        self.barrierDay = barrierDay
         self.dateList = dateList
         self.tradeFlags = tradeFlags
         # 均值和标准差计算长度
@@ -62,13 +68,9 @@ class BollMean:
 
         return dailyData
 
-    def main(self,barrierMinute, barrierDay):
+    def run(self):
         """
         主方法
-
-        Args:
-            barrierMinute:进程同步器(分钟)
-            barrierDay:进程同步器(日)
         """
         dataList = []
         for day in range(len(self.dateList)):
@@ -92,18 +94,18 @@ class BollMean:
                 # 分钟数据大于上轨，卖出
                 if minute[1] >= bollCeil:
                     self.tradeFlags[4] = -1
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
 
                 # 分钟数据小于下轨，买入
                 elif minute[1] <= bollFloor:
                     self.tradeFlags[4] = 1
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
 
                 # 不作为
                 else:
                     self.tradeFlags[4] = 0
-                    barrierMinute.wait()
+                    self.barrierMinute.wait()
 
         # 日清算
         self.tradeFlags[4] = 0
-        barrierDay.wait()
+        self.barrierDay.wait()
