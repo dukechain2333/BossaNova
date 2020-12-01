@@ -12,16 +12,18 @@ class DualThrust:
     在今天的开盘，记录开盘价，然后在价格超过上轨（开盘＋触发值）时马上买入，或者价格低于下轨（开盘－触发值）时马上卖空。
     """
 
-    def __init__(self, stockID, barrier, dateList, tradeFlags):
+    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags):
         """
         Args:
             stockID:传入股票代码
-            barrier:进程同步器
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(1)
         """
         self.stockID = stockID
-        self.barrier = barrier
+        self.barrierMinute = barrierMinute
+        self.barrierDay = barrierDay
         self.dateList = dateList
         self.N = 5
         self.K = 0.2
@@ -110,12 +112,16 @@ class DualThrust:
                 # 分钟数据大于上轨，买入
                 if minuteData[minute][1] > dayCeil:
                     self.tradeFlags[1] = 1
-                    self.barrier.wait()
+                    self.barrierMinute.wait()
                 # 分钟数据小于下轨，卖出
                 elif minuteData[minute][1] < dayFloor:
                     self.tradeFlags[1] = -1
-                    self.barrier.wait()
+                    self.barrierMinute.wait()
                 # 分钟数据位于上下轨之间，不作为
                 else:
                     self.tradeFlags[1] = 0
-                    self.barrier.wait()
+                    self.barrierMinute.wait()
+
+        # 日清算
+        self.tradeFlags[1] = 0
+        self.barrierDay.wait()

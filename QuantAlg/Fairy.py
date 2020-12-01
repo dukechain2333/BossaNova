@@ -20,16 +20,18 @@ class Fairy:
     本策略使用当天收盘时全平的方式来处理不持有隔夜单的情况。
     """
 
-    def __init__(self, stockID, barrier, dateList, tradeFlags):
+    def __init__(self, stockID, barrierMinute, barrierDay, dateList, tradeFlags):
         """
         Args:
             stockID:股票ID
-            barrier:进程同步器
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(3)
         """
         self.stockID = stockID
-        self.barrier = barrier
+        self.barrierMinute = barrierMinute
+        self.barrierDay = barrierDay
         self.dateList = dateList
         self.tradeFlags = tradeFlags
 
@@ -97,35 +99,35 @@ class Fairy:
                     # 现价大于了昨天最高价做多
                     if minute[1] > dayCeil:
                         self.tradeFlags[3] = 1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 现价小于昨天最低价做空
                     elif minute[1] < dayFloor:
                         self.tradeFlags[3] = -1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 不作为
                     else:
                         self.tradeFlags[3] = 0
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                 # 持仓情况
                 else:
                     # 价格跌破了开盘价卖出（止损）
                     if minute[1] < dayOpen:
                         self.tradeFlags[3] = -1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 价格上涨超过开盘价买入（止损）
                     elif minute[1] > dayOpen:
                         self.tradeFlags[3] = 1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 不作为
                     else:
                         self.tradeFlags[3] = 0
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
         # 当天结束全部卖出，不持有隔夜单
         self.tradeFlags[3] = -1
-        self.barrier.wait()
+        self.barrierDay.wait()

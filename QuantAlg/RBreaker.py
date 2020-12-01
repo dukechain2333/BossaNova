@@ -23,16 +23,18 @@ class RBreaker:
 
     """
 
-    def __init__(self, stockID, barrier, dateList, tradeFlags):
+    def __init__(self, stockID, barrierMinute,barrierDay, dateList, tradeFlags):
         """
         Args:
             stockID:股票ID
-            barrier:进程同步器
+            barrierMinute:进程同步器(分钟)
+            barrierDay:进程同步器(日)
             dateList:传入日期列表
             tradeFlags:交易信号数组(2)
         """
         self.stockID = stockID
-        self.barrier = barrier
+        self.barrierMinute = barrierMinute
+        self.barrierDay = barrierDay
         self.dateList = dateList
         self.tradeFlags = tradeFlags
         # 策略参数
@@ -120,30 +122,34 @@ class RBreaker:
                     # 若价格>突破买入价，开仓做多
                     if minute[1] > bBreak:
                         self.tradeFlags[2] = 1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 若价格<突破卖出价，开仓做空
                     elif minute[1] < sBreak:
                         self.tradeFlags[2] = -1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 不作为
                     else:
                         self.tradeFlags[2] = 0
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
                 # 持仓情况
                 else:
                     # 若日最高价>观察卖出价，然后下跌导致价格<反转卖出价，开仓做空
                     if dayHigh > sSetup and minute[1] < sEnter:
                         self.tradeFlags[2] = -1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 若日最低价<观察买入价，然后上涨导致价格>反转买入价，开仓做多
                     elif dayHigh < bSetup and minute[1] > bEnter:
                         self.tradeFlags[2] = 1
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
 
                     # 不作为
                     else:
                         self.tradeFlags[2] = 0
-                        self.barrier.wait()
+                        self.barrierMinute.wait()
+
+        # 日清算
+        self.tradeFlags[2] = 0
+        self.barrierDay.wait()
