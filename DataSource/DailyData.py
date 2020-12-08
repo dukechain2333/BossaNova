@@ -45,27 +45,26 @@ class DailyData(threading.Thread):
                 print(self.endDate, '数据不存在，请修改时间！')
 
             else:
-                createInfo = CreateStockInfo(self.stockID, 'stock_info_daily')
+                createInfo = CreateStockInfo(self.stockID, 'stock_info_daily', 'd')
                 createInfo.createTable()
                 addInfo = AddStockInfo(self.stockID, date, close_price, high_price, low_price, open_price,
                                        volume, outstanding_share, turnover)
                 addInfo.addInfoDaily()
 
-
 # if __name__ == '__main__':
-    # thread1 = DailyData(ak, "sh601808", '20200715', '20201118')
-    # thread2 = DailyData(ak, "sh601811", '20200715', '20201118')
-    # thread3 = DailyData(ak, "sh601858", '20200715', '20201118')
-    # thread4 = DailyData(ak, "sh601878", '20200715', '20201118')
-    #
-    # thread1.start()
-    # thread2.start()
-    # thread3.start()
-    # thread4.start()
-    #
-    # thread1.join()
-    # thread2.join()
-    # thread3.join()
-    # thread4.join()
-    #
-    # print("ALL DONE!")
+# thread1 = DailyData(ak, "sh601808", '20200715', '20201118')
+# thread2 = DailyData(ak, "sh601811", '20200715', '20201118')
+# thread3 = DailyData(ak, "sh601858", '20200715', '20201118')
+# thread4 = DailyData(ak, "sh601878", '20200715', '20201118')
+#
+# thread1.start()
+# thread2.start()
+# thread3.start()
+# thread4.start()
+#
+# thread1.join()
+# thread2.join()
+# thread3.join()
+# thread4.join()
+#
+# print("ALL DONE!")

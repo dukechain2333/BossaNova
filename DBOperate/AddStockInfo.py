@@ -19,11 +19,12 @@ class AddStockInfo:
         volume:成交量
         outstanding_share:流动股本
         turnover:换手率
+        chg:价格变动
     """
 
     def __init__(self, stockID=None, trade_date=0, close_price=0, high_price=0, low_price=0, open_price=0, volume=0,
                  outstanding_share=0,
-                 turnover=0):
+                 turnover=0, chg=0):
         # 初始化
         self.stockID = stockID
         self.trade_date = trade_date
@@ -34,6 +35,7 @@ class AddStockInfo:
         self.volume = volume
         self.outstanding_share = outstanding_share
         self.turnover = turnover
+        self.chg = chg
 
     def _connection(self, database):
         """
@@ -71,6 +73,19 @@ class AddStockInfo:
         cursor.execute(sql)
         conn.commit()
         print(self.stockID + ' minutes信息已更新')
+        conn.close()
+
+    def addInfoTick(self):
+        """
+        添加股票Tick信息
+        """
+        cursor, conn = self._connection('stock_info_tick')
+        sql = 'INSERT INTO `{}`(trade_date,stock_price,chg,volume)' \
+              'VALUES ("{}",{},{},{}) '.format(self.stockID, self.trade_date,
+                                               self.close_price, self.chg, self.volume)
+        cursor.execute(sql)
+        conn.commit()
+        print(self.stockID + ' tick信息已更新')
         conn.close()
 
 # test = AddStockInfo('603385.SH', '20200101', 100, 200, 50, 150, 10, 10, 20, 30, 40)

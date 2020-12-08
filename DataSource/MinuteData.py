@@ -27,7 +27,7 @@ class MinuteData(threading.Thread):
 
     def run(self):
         data = self.ak.stock_zh_a_minute(symbol=self.stockID, period=self.period)
-        createInfo = CreateStockInfo(self.stockID, 'stock_info_minutes', ifminute=True)
+        createInfo = CreateStockInfo(self.stockID, 'stock_info_minutes', 'm')
         createInfo.createTable()
 
         for i in range(19000):
@@ -52,20 +52,20 @@ class MinuteData(threading.Thread):
                 addInfo.addInfoMinute()
 
 
-if __name__ == '__main__':
-    thread1 = MinuteData(ak, "sh601808")
-    thread2 = MinuteData(ak, "sh601811")
-    thread3 = MinuteData(ak, "sh601858")
-    thread4 = MinuteData(ak, "sh601878")
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
-
-    thread1.join()
-    thread2.join()
-    thread3.join()
-    thread4.join()
-
-    print("ALL DONE!")
+# if __name__ == '__main__':
+#     thread1 = MinuteData(ak, "sh601808")
+#     thread2 = MinuteData(ak, "sh601811")
+#     thread3 = MinuteData(ak, "sh601858")
+#     thread4 = MinuteData(ak, "sh601878")
+#
+#     thread1.start()
+#     thread2.start()
+#     thread3.start()
+#     thread4.start()
+#
+#     thread1.join()
+#     thread2.join()
+#     thread3.join()
+#     thread4.join()
+#
+#     print("ALL DONE!")

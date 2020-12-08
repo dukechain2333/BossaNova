@@ -13,12 +13,13 @@ class CreateStockInfo:
      Args:
         stockID:传入股票ID
         database:目标位于的数据库（daily,weekly,monthly）
+        content:判断数据库类型（d(日)，t(秒),m(分钟)）
     """
 
-    def __init__(self, stockID, database, ifminute=False):
+    def __init__(self, stockID, database, content='m'):
         self.stockID = stockID
         self.database = database
-        self.ifminute = ifminute
+        self.content = content
 
     def _connection(self):
         """
@@ -43,7 +44,8 @@ class CreateStockInfo:
             print('该表已存在，不予重复创建')
             return False
         else:
-            if not self.ifminute:
+            # 日级数据表
+            if self.content == 'd':
                 sql = """CREATE TABLE `{}`(
                                     trade_date char(30),
                                     close_price float,
@@ -55,6 +57,15 @@ class CreateStockInfo:
                                     outstanding_share float,
                                     turnover float
                                     )""".format(self.stockID)
+            # 秒级数据表
+            elif self.content == 't':
+                sql = """CREATE TABLE `{}`(
+                                    trade_date char(30),
+                                    stock_price float,
+                                    chg float,
+                                    volume float
+                                    )""".format(self.stockID)
+            # 分钟级数据表
             else:
                 sql = """CREATE TABLE `{}`(
                                     trade_date char(30),
